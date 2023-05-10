@@ -1,0 +1,656 @@
+﻿@model OnlineCourseManagementSystem.Web.ViewModels.Courses.CourseDetailsViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<OnlineCourseManagementSystem.Data.Models.ApplicationUser> userManager
+@using OnlineCourseManagementSystem.Common
+@{
+    this.ViewData["Title"] = "Details for the Course";
+    int lecturerIndex = 1;
+    int lectureIndex = 1;
+    int skillsIndex = 1;
+    var user = await this.userManager.GetUserAsync(this.User);
+}
+
+@if (this.TempData.ContainsKey("Message"))
+{
+    <div class="alert alert-success alert-dismissible">
+        @this.TempData["Message"]
+    </div>
+}
+
+@if (this.TempData.ContainsKey("Alert"))
+{
+    <div class="alert alert-danger alert-dismissible">
+        @this.TempData["Alert"]
+    </div>
+}
+
+<!DOCTYPE html>
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie ie9" lang="en"> <![endif]-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>LEARN - Courses, Education site template</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- Favicons-->
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" type="image/x-icon" href="img/apple-touch-icon-57x57-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72" href="img/apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114" href="img/apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144" href="img/apple-touch-icon-144x144-precomposed.png">
+
+    <!-- CSS -->
+    @*<link href="~/css/home/bootstrap.min.css" rel="stylesheet" />*@
+    <link href="~/css/home/superfish.css" rel="stylesheet">
+    <link href="~/css/home/style.css" rel="stylesheet">
+    <link href="~/css/home/fontello.css" rel="stylesheet">
+    <link href="~/css/courseDetails/single-course.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+          <script src="http://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="http://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-11097556-8']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+
+    <style>
+        .starFade {
+            background-image: url('https://raw.githubusercontent.com/dotnetfunda/StarRatingSystem/master/Images/StarFade.gif');
+            min-width: 30px;
+            min-height: 30px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .starFadeN {
+            background-image: url('https://raw.githubusercontent.com/dotnetfunda/StarRatingSystem/master/Images/StarFade.gif');
+            min-width: 30px;
+            min-height: 30px;
+            display: inline-block;
+        }
+
+        .starGlow {
+            background-image: url('https://raw.githubusercontent.com/dotnetfunda/StarRatingSystem/master/Images/StarGlow.gif');
+            min-width: 30px;
+            min-height: 30px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .starGlowN {
+            background-image: url('https://raw.githubusercontent.com/dotnetfunda/StarRatingSystem/master/Images/StarGlow.gif');
+            min-width: 30px;
+            min-height: 30px;
+            display: inline-block;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!--Reviews dialog-->
+
+    <div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewsModalLabel">Add review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" asp-controller="Reviews" asp-action="Add">
+                        @Html.AntiForgeryToken()
+
+
+                        <div onmouseout="CRateSelected()">
+                            <span class="starFade" id="Rate1" onclick="CRate(1)" onmouseover="CRateOver(1)" onmouseout="CRateOut(1)"></span><span class="starFade" id="Rate2" onclick="CRate(2)" onmouseover="CRateOver(2)" onmouseout="CRateOut(2)"></span><span class="starFade" id="Rate3" onclick="CRate(3)" onmouseover="CRateOver(3)" onmouseout="CRateOut(3)"></span><span class="starFade" id="Rate4" onclick="CRate(4)" onmouseover="CRateOver(4)" onmouseout="CRateOut(4)"></span><span class="starFade" id="Rate5" onclick="CRate(5)" onmouseover="CRateOver(5)" onmouseout="CRateOut(5)"></span>
+                        </div>
+
+
+                        <div class="form-group">
+                            <textarea name="Content" id="Content" rows="5" class="form-control"></textarea>
+                        </div>
+
+
+                        <div class="modal-footer">
+                            <input type="hidden" name="CourseId" value="@this.Model.Id" />
+                            <input type="hidden" name="Rating" id="Rating" value="0" />
+
+
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-info">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="sub-header">
+        <div class="container text-white">
+
+            <div class="row">
+                <div class="col-md-12 text-center text-white">
+                    <h1 class="text-white">Course details</h1>
+                </div>
+            </div><!-- End row -->
+
+            <div class="row" id="sub-header-features-2">
+                <div class="col-md-6">
+                    <h2 class="text-white">A brief summary</h2>
+                    <p class="text-white">@Html.Raw(string.Join("", this.Model.Description.Take(250).ToList()) + "...")</p>
+                </div>
+                <div class="col-md-6">
+                    <h2 class="text-white">What you will learn</h2>
+                    <ul>
+                        @foreach (var skill in this.Model.Skills)
+                        {
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                    <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z" />
+                                </svg>
+                                @skill.Text
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+            </div><!-- End row -->
+        </div><!-- End container -->
+        <div class="divider_top"></div>
+    </section>
+
+    <section id="main_content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+
+                    @if (this.User.IsInRole(GlobalConstants.LecturerRoleName))
+                    {
+                        <div class="text-center mb-3">
+                            <a asp-controller="Exams" asp-action="AddToCertificate" asp-route-courseId="@this.Model.Id" class="btn btn-success" style="font-size: 20px;">ADD EXAM TO CERTIFICATE</a>
+                        </div>
+                    }
+                    else if (this.User.IsInRole(GlobalConstants.StudentRoleName))
+                    {
+                        <div class="text-center mb-3">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-success" style="font-size: 20px;">START CERTIFICATE</button>
+                        </div>
+
+                        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">Start Certificate</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        You are going to start a certification exam. Once you click the 'Confirm' button, the exam will start.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <a asp-controller="Exams" asp-action="StartCertificate" asp-route-id="@this.Model.Id" class="btn btn-primary">Confirm</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>You complete <strong>@this.Model.CompletedLecturesCount</strong> out of <strong>@this.Model.LecturesCount</strong> lectures</span><span id="end">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-trophy-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z" />
+                                </svg>
+                            </span>
+                            <div class="progress">
+                                @if (this.Model.LecturesCount != 0)
+                                {
+                                    <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: @(((this.Model.CompletedLecturesCount / this.Model.LecturesCount * 100)).ToString("f2") + "%;")" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                }
+                            </div>
+                        </div>
+                    </div><!-- End progress bar -->
+
+                    <hr>
+
+                    @foreach (var lecture in this.Model.ListOfLectures.Lectures)
+                    {
+                        <h3 class="chapter_course no_margin_rop">Chapter @lecturerIndex: @lecture.Title</h3>
+                        @foreach (var file in lecture.Files)
+                        {
+                            if (file.Extension == ".mp4")
+                            {
+                                <div class="strip_single_course">
+                                    @if (this.User.IsInRole(GlobalConstants.StudentRoleName))
+                                    {
+                                        @if (file.FileCompletitions.Any(fc => fc.FileId == file.Id && fc.UserId == user.Id))
+                                        {
+                                            <h4>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill text-success" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8" />
+                                                </svg>
+                                                <a asp-controller="Files" asp-action="VideoById" asp-route-id="@file.Id" asp-route-courseId="@file.LectureCourseId">Video - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                            </h4>
+                                        }
+                                        else
+                                        {
+                                            <h4>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                </svg>
+                                                <a asp-controller="Files" asp-action="VideoById" asp-route-id="@file.Id" asp-route-courseId="@file.LectureCourseId">Video - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                            </h4>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <h4><a asp-controller="Files" asp-action="VideoById" asp-route-id="@file.Id" asp-route-courseId="@file.LectureCourseId">Video - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a></h4>
+                                    }
+                                    <ul>
+                                        <li>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-video-fill" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z" />
+                                            </svg>
+                                            Video File
+                                            @if (this.User.IsInRole(GlobalConstants.LecturerRoleName))
+                                            {
+                                                <form method="post" asp-controller="Files" asp-action="Delete" asp-route-id="@file.Id">
+                                                    <input type="submit" class="btn btn-danger" value="Delete" />
+                                                </form>
+                                            }
+                                        </li>
+                                    </ul>
+                                </div><!-- end strip single course -->
+                            }
+                            else if (file.Extension == ".pptx")
+                            {
+                                <div class="strip_single_course">
+                                    @if (this.User.IsInRole(GlobalConstants.StudentRoleName))
+                                    {
+                                        @if (file.FileCompletitions.Any(fc => fc.FileId == file.Id && fc.UserId == user.Id))
+                                        {
+                                            <h4>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill text-success" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="8" r="8" />
+                                                </svg>
+                                                <a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Presentation - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                            </h4>
+                                        }
+                                        else
+                                        {
+                                            <h4>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                </svg>
+                                                <a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Presentation - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                            </h4>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <h4><a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Presentation - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a></h4>
+                                    }
+                                    <ul>
+                                        <li>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-ppt" viewBox="0 0 16 16">
+                                                <path d="M7 5.5a1 1 0 0 0-1 1V13a.5.5 0 0 0 1 0v-2h1.188a2.75 2.75 0 0 0 0-5.5H7zM8.188 10H7V6.5h1.188a1.75 1.75 0 1 1 0 3.5z" />
+                                                <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                            </svg>
+                                            Presentation File
+                                            @if (this.User.IsInRole(GlobalConstants.LecturerRoleName))
+                                            {
+                                                <form method="post" asp-controller="Files" asp-action="Delete" asp-route-id="@file.Id">
+                                                    <input type="submit" class="btn btn-danger" value="Delete" />
+                                                </form>
+                                            }
+                                        </li>
+                                    </ul>
+                                </div><!-- end strip single course -->
+                            }
+                            else if (file.Extension == ".docx")
+                            {
+                                <div class="strip_single_course">
+                                    <div class="strip_single_course">
+                                        @if (this.User.IsInRole(GlobalConstants.StudentRoleName))
+                                        {
+                                            @if (file.FileCompletitions.Any(fc => fc.FileId == file.Id && fc.UserId == user.Id))
+                                            {
+                                                <h4>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill text-success" viewBox="0 0 16 16">
+                                                        <circle cx="8" cy="8" r="8" />
+                                                    </svg>
+                                                    <a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Word Document - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                                </h4>
+                                            }
+                                            else
+                                            {
+                                                <h4>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                    </svg>
+                                                    <a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Word Document - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a>
+                                                </h4>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <h4><a asp-controller="Files" asp-action="ById" asp-route-id="@file.Id" asp-route-lectureId="@file.LectureId">Word Document - @file.CreatedOn.ToString("dd MMMM yyyy") - @(file.UserFirstName + ' ' + file.UserLastName)</a></h4>
+                                        }
+                                        <ul>
+                                            <li>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-word" viewBox="0 0 16 16">
+                                                    <path d="M7 5.5a1 1 0 0 0-1 1V13a.5.5 0 0 0 1 0v-2h1.188a2.75 2.75 0 0 0 0-5.5H7zM8.188 10H7V6.5h1.188a1.75 1.75 0 1 1 0 3.5z" />
+                                                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                                </svg>
+                                                Word Document
+                                                @if (this.User.IsInRole(GlobalConstants.LecturerRoleName))
+                                                {
+                                                    <form method="post" asp-controller="Files" asp-action="Delete" asp-route-id="@file.Id">
+                                                        <input type="submit" class="btn btn-danger" value="Delete" />
+                                                    </form>
+                                                }
+                                            </li>
+                                        </ul>
+                                    </div><!-- end strip single course -->
+
+                                </div><!-- end strip single course -->
+                            }
+                        }
+
+                        @foreach (var exam in lecture.Exams)
+                        {
+                            <div class="strip_single_course">
+                                <h4><a asp-controller="Exams" asp-action="TakeExam" asp-route-id="@exam.Id">Quiz - @exam.CreatedOn.ToString("dd MMMM yyyy") - @(exam.CreatorFirstName + ' ' + exam.CreatorLastName)</a></h4>
+                                <ul>
+                                    <li>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z" />
+                                        </svg>
+                                        Quiz
+                                        @if (this.User.IsInRole(GlobalConstants.LecturerRoleName))
+                                        {
+                                            <form method="post" asp-controller="Exams" asp-action="Delete" asp-route-id="@exam.Id">
+                                                <input type="submit" class="btn btn-danger" value="Delete" />
+                                            </form>
+                                        }
+                                    </li>
+                                </ul>
+                            </div><!-- end strip single course -->
+                        }
+
+                        lecturerIndex++;
+                    }
+
+                </div><!-- End col-md-8  -->
+
+                <aside class="col-md-4">
+                    @if (this.Model.Users.Any(u => u.UserId == user.Id))
+                    {
+                        <a asp-action="ById" asp-route-id="@this.Model.Id" class=" button_fullwidth-3">Start learning</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Orders" asp-action="Create" asp-route-id="@this.Model.Id" class=" button_fullwidth-3">Start learning</a>
+                    }
+                    <div class="box_style_1">
+                        <h4 style="font-size: 15px !important;">Lessons <span class="pull-right">@this.Model.LecturesCount</span></h4>
+                        <h4 style="font-size: 15px !important;">
+                            Rates
+                            @if (this.Model.Rating <= 1)
+                            {
+
+                                <span style="margin-left: 120px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                </span>
+
+                            }
+                            else if (this.Model.Rating <= 2)
+                            {
+
+                                <span style="margin-left: 120px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                </span>
+
+                            }
+                            else if (this.Model.Rating <= 3)
+                            {
+
+                                <span style="margin-left: 120px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                </span>
+
+                            }
+                            else if (this.Model.Rating <= 4)
+                            {
+
+                                <span style="margin-left: 120px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star text-warning" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                    </svg>
+                                </span>
+
+                            }
+                            else if (this.Model.Rating <= 5)
+                            {
+
+                                <span style="margin-left: 120px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill text-warning" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                    </svg>
+                                </span>
+
+                            }
+                        </h4>
+                        <h4 style="font-size: 15px !important;">Single purchase <span class="pull-right">@this.Model.Price.ToString("f2") лв.</span></h4><br>
+                        <h4 style="font-size: 15px !important;">Lecturers</h4>
+                        @foreach (var lecturer in this.Model.Lecturers)
+                        {
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <h5 class="media-heading"><a href="#">@(lecturer.LecturerUserFirstName + ' ' + lecturer.LecturerUserLastName)</a></h5>
+                                    <p>
+                                        @Html.Raw(string.Join("", lecturer.LecturerUserBackground.Take(50).ToList()) + "...")
+                                    </p>
+                                </div>
+                                <div class="col-md-3">
+                                    @if (lecturer.LecturerUserProfileImageUrl == null)
+                                    {
+                                        <img style="border-radius: 50%; height: 70px; width: 70px;" src="https://tse1.mm.bing.net/th?id=OIP.SmI8KKz6-GZJPWNXGUuymQAAAA&pid=Api&P=0&w=152&h=152" alt="noImage">
+                                    }
+                                    else
+                                    {
+                                        <img style="border-radius: 50%; height: 70px; width: 70px;" src="@lecturer.LecturerUserProfileImageUrl" class="mt-3" alt="lecturerProfileImage">
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="box_style_1">
+                        <h4>Legend</h4>
+                        <ul class="legend_course">
+                            <li id="tostart">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                </svg>
+                                Still to start
+                            </li>
+                            <li id="completed">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill text-success" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="8" r="8" />
+                                </svg>
+                                Completed
+                            </li>
+                        </ul>
+                    </div>
+                </aside> <!-- End col-md-4 -->
+
+            </div><!-- End row -->
+
+            <hr>
+            <partial name="_LecturesPagingPartial" model="this.Model.ListOfLectures" />
+
+        </div><!-- End container -->
+    </section>
+
+    <section id="join">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-md-offset-2 text-center">
+                    <div class="row">
+                        <div class="col-md-2 hidden-sm hidden-xs"><img src="https://www.ansonika.com/learn/img/arrow_hand_1.png" alt="Arrow"> </div>
+                        <div class="col-md-8">
+                            <p class="text-center">
+                                @if (this.Model.Users.Any(u => u.UserId == user.Id))
+                                {
+                                    <a asp-action="ById" asp-route-id="@this.Model.Id" class=" button_big">Start learning</a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Orders" asp-action="Create" asp-route-id="@this.Model.Id" class=" button_big">Start learning</a>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="toTop">Back to top</div>
+
+    <!-- JQUERY -->
+    <script src="~/js/home/jquery-2.2.4.min.js"></script>
+
+
+    <!-- OTHER JS -->
+    <script src="~/js/home/superfish.js"></script>
+    <script src="~/js/home/bootstrap.min.js"></script>
+    <script src="~/js/home/retina.min.js"></script>
+    <script src="~/js/home/validate.js"></script>
+    <script src="~/js/home/jquery.placeholder.js"></script>
+    <script src="~/js/home/functions.js"></script>
+    <script src="~/js/home/classie.js"></script>
+    <script src="~/js/home/uisearch.js"></script>
+    <script>new UISearch(document.getElementById('sb-search'));</script>
+
+    <script>
+        function SubmitComment() {
+            if ($("#Rating").val() == "0") {
+                alert("Please rate this service provider.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        function CRate(r) {
+            $("#Rating").val(r);
+            for (var i = 1; i <= r; i++) {
+                $("#Rate" + i).attr('class', 'starGlow');
+            }
+            // unselect remaining
+            for (var i = r + 1; i <= 5; i++) {
+                $("#Rate" + i).attr('class', 'starFade');
+            }
+        }
+        function CRateOver(r) {
+            for (var i = 1; i <= r; i++) {
+                $("#Rate" + i).attr('class', 'starGlow');
+            }
+        }
+        function CRateOut(r) {
+            for (var i = 1; i <= r; i++) {
+                $("#Rate" + i).attr('class', 'starFade');
+            }
+        }
+        function CRateSelected() {
+            var setRating = $("#Rating").val();
+            for (var i = 1; i <= setRating; i++) {
+                $("#Rate" + i).attr('class', 'starGlow');
+            }
+        }
+    </script>
+</body>
+</html>
+

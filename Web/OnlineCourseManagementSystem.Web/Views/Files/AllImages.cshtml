@@ -1,0 +1,60 @@
+﻿@using OnlineCourseManagementSystem.Web.ViewModels.Files
+@model AllImagesViewModel
+@{
+    this.ViewData["Title"] = "Images By Album";
+}
+<h1 class="text-center my-5" style="color: #42a5f5;">
+    Album: @Model.Name
+</h1>
+
+<div class="my-5">
+    @await Html.PartialAsync("_PartialAddImages", new UploadImageInputModel { AlbumId = Model.Id })
+</div>
+
+
+<div class="row ml-5">
+    @foreach (var image in this.Model.Images)
+    {
+        <div class="card card-body col-md-3 m-3 d-flex flex-column justify-content-center align-items-center" style="background: #e5e5e5;">
+           <img id="@image.ImageId" onclick="showMyImage(@image.ImageId)" src="@image.ImageUrl" alt="Image" class="image" />
+           <div class="my-2">
+               <form asp-controller="Files" asp-action="DeleteImage" asp-route-id="@image.ImageId" method="post">
+                   <button class="btn bg-white rounded-pill" style="color:black">
+                       Delete
+                   </button>
+               </form>
+           </div>
+        </div>
+    }
+</div>
+
+<div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="img01">
+    <div id="caption"></div>
+</div>
+
+<script>
+    function showMyImage(imgId) {
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        var img = document.getElementById(imgId);
+        var modalImg = document.getElementById("img01");
+        var captionText = document.getElementById("caption");
+        img.onclick = function () {
+            modal.style.display = "block";
+            modalImg.src = this.src;
+            captionText.innerHTML = this.alt;
+        }
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+    }
+</script>

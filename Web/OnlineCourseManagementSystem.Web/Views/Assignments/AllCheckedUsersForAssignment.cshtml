@@ -1,0 +1,62 @@
+﻿@using OnlineCourseManagementSystem.Web.ViewModels.Assignments
+@model IEnumerable<CheckedUserAssignmentsViewModel>
+@{ 
+    this.ViewData["Title"] = "Checked Assignment";
+}
+
+@if (this.TempData.ContainsKey("EditedCheckedAssignment"))
+{
+    <div class="alert alert-success alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        @this.TempData["EditedCheckedAssignment"]
+    </div>
+}
+
+@foreach (var user in this.Model)
+{
+    <div class="lecture-assignment row" style="background:#ffffff;color:darkblue">
+        <div class="col-md-4 text-black-50">
+            @user.StudentName
+        </div>
+
+        @if (user.TurnedOn != null)
+        {
+            <div class="col-md-4">
+
+
+                @if (user.TurnedOn > user.EndDate)
+                {
+                    <p>Turned: <span class="badge" style="background: #ffd800; color: #ffd800">0</span></p>
+                    <p>@user.TurnedOn</p>
+                    <p>Turned Late</p>
+                }
+                else
+                {
+                    <p>Turned: <span class="badge" style="background: #00ff21; color: #00ff21">0</span></p>
+                    <p>@user.TurnedOn</p>
+                    <p>Turned on time</p>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="col-md-4">
+                <p>Turned: <span class="badge" style="background:#ff0000;color:#ff0000">0</span></p>
+            </div>
+        }
+
+        <a asp-controller="Assignments" asp-action="EditCheckedAssignment" asp-route-assignmentId="@user.AssignmentId" asp-route-userId="@user.UserId" class="btn btn-dark">Edit</a>
+        <div>
+            Points: @user.Points
+        </div>
+    </div>
+    <pre class="tab"></pre>
+    <pre class="tab"></pre>
+}
+
+<div id="btn-scrollTop">
+    <img class="img-scrollUp" src="~/icons/circle_up.png"  />
+    <div class="img-scrollUp">
+        Hello
+    </div>
+</div>

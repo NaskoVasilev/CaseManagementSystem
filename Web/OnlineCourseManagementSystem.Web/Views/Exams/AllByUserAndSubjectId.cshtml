@@ -1,0 +1,148 @@
+﻿@model OnlineCourseManagementSystem.Web.ViewModels.Exams.AllExamsByUserIdListViewModel
+@{
+    this.ViewData["Title"] = "Your Exams";
+    int i = 1;
+}
+
+@if (this.TempData.ContainsKey("Alert"))
+{
+    <div class="alert alert-danger alert-dismissible">
+        @this.TempData["Alert"]
+    </div>
+}
+
+
+
+<head>
+    <link href="~/css/home/superfish.css" rel="stylesheet">
+    <link href="~/css/home/style.css" rel="stylesheet">
+    <link href="~/css/home/fontello.css" rel="stylesheet">
+
+    <link href="~/css/responsiveTables.css" rel="stylesheet" />
+</head>
+
+<h1 class="text-center">@this.ViewData["Title"]</h1>
+<hr />
+
+<body>
+    <section id="main_content">
+        <div class="container">
+
+            <div class="row mb-2">
+                <form asp-route-subjectId="@this.Model.SubjectId" class="w-100" style="display: inline;">
+                    <div class="row">
+                        <div class="col-8">
+                            <input asp-for="Input" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+
+                <aside class="col-lg-3 col-md-4 col-sm-4">
+                    <div class="box_style_1" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+                        <h4>Categories</h4>
+                        <ul class="submenu-col">
+                            <li><a asp-action="AllUpcomingAndActive" id="active">All Courses</a></li>
+                            @foreach (var subject in this.Model.Subjects)
+                            {
+                                <li><a asp-action="AllByUserAndSubjectId" asp-route-subjectId="@subject.Id">@subject.Name</a></li>
+                            }
+                        </ul>
+
+                        <hr>
+                    </div>
+                </aside>
+
+                <div class="col-lg-9 col-md-8 col-sm-8">
+                    <div class="row">
+                        @foreach (var exam in this.Model.Exams)
+                        {
+                            <div class="col-lg-4 col-md-6">
+                                <div class="col-item" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; min-height: 450px;">
+
+                                    <span class="ribbon_course"></span>
+                                    <div class="photo">
+                                        <a href="#"><img height="200" src="@exam.CourseFileRemoteUrl" alt="courseImage" /></a>
+                                        <div class="cat_row">
+                                            <a href="#">@exam.Name</a><span class="pull-right">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                                                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                </svg>
+                                                @exam.ExamType
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="info">
+                                        <div class="row">
+                                            <div class="course_info col-md-12 col-sm-12">
+                                                <h4>@exam.CourseName</h4>
+                                                <p>@Html.Raw(string.Join("", exam.CourseDescription.Take(100).ToList()) + "...")</p>
+                                                <div class="rating">
+                                                    <p>@exam.TotalMarks Total Points</p>
+                                                </div>
+                                                <div class="price pull-right">@exam.PassMarks Pass</div>
+                                            </div>
+                                        </div>
+                                        <div class="separator clearfix">
+                                            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#exampleModal_@i">
+                                                Take Exam
+                                            </button>
+
+                                            <div class="modal fade" id="exampleModal_@i" tabindex="-1" aria-labelledby="exampleModalLabel_@i" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel_@i">Take exam</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            You will enter the exam and the clock will begin ticking!
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <a asp-controller="Exams" asp-action="TakeExam" asp-route-id="@exam.Id" class="btn btn-primary">Go!</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            i++;
+                        }
+                    </div><!-- End row -->
+                </div><!-- End col-lg-9-->
+
+
+
+            </div><!-- End row -->
+
+            <hr>
+            <div style="background-color:white !important; color: white !important;" class="bg-white">
+                <partial name="_AllExamsByUserIdAndSubjectIdPagingPartial" model="@this.Model" />
+            </div>
+
+        </div><!-- End container -->
+    </section><!-- End main_content -->
+</body>
+
+@section Scripts {
+    <script type="text/javascript">
+        $("#pdf").click(function () {
+            var element = document.getElementById("myTable");
+
+            html2pdf().from(element).set({
+                margin: [30, 10, 5, 10],
+                pagebreak: { avoid: 'tr' },
+                jsPDF: { orientation: 'landscape', unit: 'pt', format: 'letter', compressPDF: false }
+            }).save()
+        });
+    </script>
+}

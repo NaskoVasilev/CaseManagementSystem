@@ -1,0 +1,125 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using OnlineCourseManagementSystem.Data.Models
+@using OnlineCourseManagementSystem.Web.Views.Shared.Components
+@inject UserManager<ApplicationUser> userManager
+@{
+    ApplicationUser user = await this.userManager.GetUserAsync(this.User);
+    string userFullName = $"{user.FirstName} {user.LastName}";
+    this.ViewData["Title"] = "Messages";
+    this.ViewData["CurrentUserHeading"] = "Messages";
+}
+
+
+<style>
+    body {
+        background-color: lightgray;
+    }
+</style>
+
+<body>
+    <component type="typeof(Chats)" render-mode="ServerPrerendered" param-UserId="user.Id" param-UserFullName="userFullName" param-UserProfileUrl="user.ProfileImageUrl" />
+</body>
+
+<script>
+    function showDropdown(myDropDown) {
+        try {
+            document.getElementById(myDropDown).classList.toggle("show");
+        } catch (error) {
+            console.log("No message found with that dropdown");
+        }
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function (event) {
+        if (!event.target.matches(".dropbtn")) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains("show")) {
+                    openDropdown.classList.remove("show");
+                }
+            }
+            
+        }
+    }
+
+    window.onclick = function (event) {
+        if (!event.target.matches(".message")) {
+            var messageDropdowns = document.getElementsByClassName("messageDropdown");
+            var j;
+            for (j = 0; j < messageDropdowns.length; j++) {
+                var openMesssageDropdown = messageDropdowns[j];
+                if (openMesssageDropdown.classList.contains("show")) {
+                    openMesssageDropdown.classList.remove("show");
+                }
+            }
+        }
+    }
+
+    function searchDropDown() {
+        document.getElementById("mySearch").classList.toggle("show-search-form");
+        document.getElementById("members").classList.remove("show");
+    }
+
+    function showMembers() {
+        document.getElementById("members").classList.toggle("show");
+        document.getElementById("mySearch").classList.remove("show-search-form");
+    }
+
+    function showNotification(name, message) {
+        const notification = new Notification(name, {
+            body: message,
+            icon: "https://tse1.mm.bing.net/th?id=OIP.B4uDqkFwAxtC3D6OYdlCVQHaF8&pid=Api&P=0&w=213&h=172"
+        });
+
+        notification.onclick = (e) => {
+            var currentURL = window.location.href;
+            window.location.href = currentURL;
+        };
+    }
+
+    function showInputImage() {
+        $().ready(function () {
+            $("#show").hover(function () {
+                $("#image").show("1000");
+                $(".img-fade").css("opacity", "0.4");
+                $(".img-fade").css("transition", "opacity 350ms ease-in");
+            }, function () {
+                $("#image").hide("1000");
+                $(".img-fade").css("opacity", "1");
+                $(".img-fade").css("transition", "opacity 350ms ease-out");
+            });
+        })
+    }
+
+    function setDelay() {
+        setTimeout(function myfunction() {
+            var boxSomeoneWriting = document.getElementById("box-someone-writing");
+            var someoneWritingField = document.getElementById("someone-writing");
+            someoneWritingField.innerHTML = "";
+            boxSomeoneWriting.style.visibility = "hidden";
+        }, 5000);
+    }
+    function showSomeoneWriting(name) {
+
+        var boxSomeoneWriting = document.getElementById("box-someone-writing");
+        boxSomeoneWriting.style.visibility = "visible";
+        var someoneWritingField = document.getElementById("someone-writing");
+        let users = new Array();
+        for (var i = 0; i < users.length; i++) {
+            if (users[i] == name) {
+                return;
+            }
+        }
+
+        if (!someoneWritingField.innerHTML.includes(name)) {
+            someoneWritingField.innerHTML += " " + name + " is writing";
+        }
+
+        setDelay();
+    }
+
+   
+</script>
+

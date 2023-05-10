@@ -1,0 +1,114 @@
+﻿@using OnlineCourseManagementSystem.Web.ViewModels.ContactMessages
+@model  IEnumerable<ContactMessageViewModel>
+
+@{
+    this.ViewData["Title"] = "Contact Messages";
+}
+
+<div style="height:50vh;" class="mt-3">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>FirstName</td>
+                <td>LastName</td>
+                <td>Phone</td>
+                <td>Options</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var message in this.Model)
+            {
+                <tr>
+                    <td>
+                        @message.FirstName
+                    </td>
+                    <td>
+                        @message.LastName
+                    </td>
+                    <td>
+                        @message.Phone
+                    </td>
+                    <td class="d-flex justify-content-center">
+                        @if (!message.IsSeen)
+                         {
+                            <form asp-controller="ContactMessages" asp-action="MarkAsSeen" asp-route-id="@message.Id" method="post">
+                                <button class="btn btn-success mx-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                                    </svg>
+                                    Mark as Seen
+                                </button>
+                            </form>
+                         }
+                    <button onclick="openDetails(@message.Id)" class="btn btn-info" id="@message.Id" data-bs-toggle="modal" data-bs-target="#details">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                        </svg>
+                        Details
+                    </button>
+                     
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            @if (message.IsSeen)
+                            {
+                                <p>
+                                    <span class="text-white bg-success rounded-pill px-3" style="font-size:12px;">Seen</span> by @message.SeenByUserFullName
+                                </p>
+                            }
+                            else
+                            {
+                                <p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z" />
+                                        <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z" />
+                                        <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z" />
+                                    </svg>
+                                </p>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="details" tabindex="-1" aria-labelledby="detailsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title" id="datailsLabel">Details</h5>
+                <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex justify-content-center align-items-center" id="contentBody">
+
+            </div>
+            <div class="modal-footer bg-info">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let array = [];
+
+    @foreach (var d in this.Model)
+     {
+        @:(array.push({ "Id": "@d.Id", "Content": "@d.Content" }));
+     }
+
+    function openDetails(id) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].Id == id) {
+                var contentBody = document.getElementById("contentBody");
+                contentBody.innerHTML = array[i].Content;
+            }
+        }
+    }
+</script>

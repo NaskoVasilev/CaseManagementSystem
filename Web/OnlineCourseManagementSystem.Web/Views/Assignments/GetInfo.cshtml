@@ -1,0 +1,223 @@
+﻿@using OnlineCourseManagementSystem.Web.ViewModels.Assignments
+@using OnlineCourseManagementSystem.Web.ViewModels.Files
+@model AssignmentPageViewModel
+@{
+    this.ViewData["Title"] = "Assignment Info";
+    int i = 0;
+    int j = 0;
+}
+
+<style>
+    .btn-upload{
+        background:transparent;
+        border:none;
+    }
+
+    .bnt-upload:hover{
+        border-bottom: 1px solid #42a5f5;
+    }
+</style>
+
+<h1 class="text-center my-5">@Model.CourseName</h1>
+
+<div class="row">
+    <div class="col-lg-8 col-sm-6">
+        <div class="my-2">
+            <h3>Instructions</h3>
+            @if (string.IsNullOrEmpty(this.Model.Instructions) || string.IsNullOrWhiteSpace(this.Model.Instructions))
+            {
+                <p>
+                    <i>
+                        No Instructions
+                    </i>
+                </p>
+            }
+            <p>
+                @this.Model.Instructions
+            </p>
+        </div>
+        <div class="my-2">
+            <h3>Resource Files</h3>
+            <div class="d-flex flex-column m-3">
+                @if (this.Model.ResourceFiles != null)
+                {
+                    @foreach (var file in this.Model.ResourceFiles)
+                    {
+                        if (file.RemoteUrl.EndsWith("jpg") || file.RemoteUrl.EndsWith("png"))
+                        {
+                            <div id="@file.FileId" onclick="showFile(@file.FileId)" src="@file.RemoteUrl" class="p-2 my-1 d-flex align-items-center bg-secondary rounded-2" @*data-bs-toggle="modal" data-bs-target="#exampleModal"*@ style="cursor:pointer;">
+                                <h6 style="color:white;" class="flex-grow-1">Resource File</h6>
+                            </div>
+                        }
+                        else
+                        {
+
+                            <div id="@file.FileId" onclick="showFile(@file.FileId)" src="https://view.officeapps.live.com/op/embed.aspx?src=@file.RemoteUrl" @*data-bs-toggle="modal" data-bs-target="#exampleModal"*@ class="p-2 my-1 d-flex align-items-center rounded-2 bg-secondary" style="cursor:pointer;">
+                                <h6 style="color:white" class="flex-grow-1">Resource File</h6>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="default-open-view mt-5" id="default">
+                        No files.
+                    </div>
+                }
+            </div>
+
+            <h3>Work Files</h3>
+            <div class="d-flex flex-column m-3">
+                @if (this.Model.WorkFiles != null)
+                {
+                    @foreach (var file in this.Model.WorkFiles)
+                    {
+                        @if (file.RemoteUrl.EndsWith("jpg") || file.RemoteUrl.EndsWith("png"))
+                        {
+                            <div id="@file.FileId" onclick="showFile(@file.FileId)" src="@file.RemoteUrl" class="p-2 my-1 d-flex align-items-center bg-secondary rounded-2" @*data-bs-toggle="modal" data-bs-target="#exampleModal"*@ style="cursor:pointer;">
+                                <div class="flex-grow-1">
+                                    <h6 style="color:white">Work File</h6>
+                                </div>
+                                <div>
+                                    <form asp-controller="Files" asp-action="DeleteWorkFileFromAssignment" asp-route-id="@file.FileId" method="post">
+                                        <button class="btn bg-white">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="@file.FileId" onclick="showFile(@file.FileId)" src="https://view.officeapps.live.com/op/embed.aspx?src=@file.RemoteUrl" @*data-bs-toggle="modal" data-bs-target="#exampleModal"*@ class="p-2 my-1 d-flex align-items-center rounded-2 bg-secondary" style="cursor:pointer;">
+                                <div class="flex-grow-1">
+                                    <h6 style="color:white;">Work File</h6>
+                                </div>
+                                <div>
+                                    <form asp-controller="Files" asp-action="DeleteWorkFileFromAssignment" asp-route-id="@file.FileId" method="post">
+                                        <button class="btn bg-white">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="default-open-view mt-5" id="default">
+                        No files.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6">
+        <div class="d-flex flex-column justify-content-end">
+            @if (this.Model.TurnedOn == null)
+            {
+                <form class="d-flex align-items-center" asp-controller="Assignments" asp-action="TurnIn" asp-route-id="@this.Model.AssignmentId" enctype="multipart/form-data" method="post">
+                    <div class="mx-2">
+                        <button class="btn btn-primary rounded-pill">Turn In</button>
+                    </div>
+                    <input asp-for="InputModel.Files" id="input-file" type="file" multiple class="form-control" hidden />
+                    <label for="input-file" class="d-inline-flex rounded-pill p-2 my-2 justify-content-end align-items-center" id="show" style="cursor:pointer;color:black;box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;">
+                        <tt id="create-text" class="mx-1">
+                            Upload Files
+                        </tt>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </label>
+                </form>
+            }
+            else
+            {
+                <form asp-controller="Assignments" asp-action="UndoTurnIn" asp-route-id="@this.Model.AssignmentId" method="post">
+                    <div>
+                        <button class="btn rounded-pill" style="color: white; background-color:#42a5f5">Undo turn in</button>
+                    </div>
+                </form>
+            }
+        </div>
+        <div class="d-inline-block mt-5">
+            @if (this.Model.TurnedOn != null)
+            {
+                <p>Points: @this.Model.Points</p>
+            }
+            else
+            {
+                <p>Points: @this.Model.PossiblePoints</p>
+            }
+
+            @if (!string.IsNullOrEmpty(this.Model.Feedback))
+            {
+                <p>
+                    Feedback: @this.Model.Feedback
+                </p>
+            }
+            else
+            {
+                <p>
+                    Feedback: none
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal" style="">
+    <span class="close">&times;</span>
+    <iframe class="modal-content" id="file" frameborder='0'>
+    </iframe>
+    <img class="modal-content" id="img01">
+    <div id="caption"></div>
+</div>
+
+
+
+@*<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="height:fit-content; width:fit-content">
+            <div class="modal-content" style="height:fit-content; width:fit-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Opened File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                </div>
+            </div>
+        </div>
+    </div>*@
+@section Scripts{
+    <script>
+        function showFile(fileId) {
+            var file = document.getElementById(fileId);
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("img01");
+            var modalFile = document.getElementById("file");
+
+            var captionText = document.getElementById("caption");
+
+            modal.style.display = "block";
+            if (file.getAttribute("src").includes(".jpg") || file.getAttribute("src").includes(".png")) {
+                modalImg.src = file.getAttribute("src");
+                modalImg.style.display = "block";
+            }
+            else {
+                modalFile.src = file.getAttribute("src");
+                modalFile.style.display = "block";
+            }
+
+            captionText.innerHTML = file.getAttribute("alt");
+
+            var span = document.getElementsByClassName("close")[0];
+
+            span.onclick = function () {
+                modal.style.display = "none";
+                modalImg.style.display = "none";
+                modalFile.style.display = "none";
+            }
+        }
+    </script>
+}
+
+
+
+

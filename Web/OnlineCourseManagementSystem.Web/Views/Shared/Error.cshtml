@@ -1,0 +1,46 @@
+@model ErrorViewModel
+@{
+    this.ViewData["Title"] = "Error";
+}
+
+<!DOCTYPE html>
+<!-- Created By CodingNepal -->
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>404 Error Page | CodingNepal</title>
+    <link rel="stylesheet" href="~/custom-error-page/style.css">
+</head>
+<body>
+    <div id="error-page">
+        <div class="content">
+            <h2 class="header" data-text="404">
+                404
+            </h2>
+            <h4 data-text="Opps! Page not found">
+                Opps! Page not found
+            </h4>
+            <p>
+                Sorry, the page you're looking for doesn't exist. If you think something is broken, contact us.
+            </p>
+            <div class="btns">
+                <p class="text-center">
+                    <a href="/">return home</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script type="text/javascript">
+            const body = document.querySelector("body");
+            const header = body.querySelector("header");
+            header.setAttribute("style", "visibility: hidden;");
+            const footer = body.querySelector("footer");
+            footer.setAttribute("style", "visibility: hidden");
+            const ol = document.querySelector("ol");
+            ol.setAttribute("style", "visibility: hidden");
+        </script>
+    }
+</body>
+</html>

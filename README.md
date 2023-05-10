@@ -1,2 +1,2 @@
-# CaseManagemetnSystem
-Sample ASp.NET core project
+# OnlineCourseManagementSystem
+https://omcsgen.com

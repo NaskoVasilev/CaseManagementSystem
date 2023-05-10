@@ -1,0 +1,54 @@
+﻿@model OnlineCourseManagementSystem.Web.ViewModels.Courses.AllCoursesListViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<OnlineCourseManagementSystem.Data.Models.ApplicationUser> userManager
+@{
+    this.ViewData["Title"] = "All Upcoming Courses";
+    var user = await this.userManager.GetUserAsync(this.User);
+}
+
+<h3>@this.ViewData["Title"]</h3>
+@foreach (var course in this.Model.Courses)
+{
+    <div class="col-md-6">
+        <div class="component">
+            <div class="card">
+                <div class="card-header">
+                    <img class="card-img" src="@course.FileRemoteUrl" alt="course">
+                </div>
+                <div class="card-body">
+                    <span class="badge badge-warning">@course.SubjectName</span>
+                    <h4 class="card-title mt-2">@course.Name</h4>
+                    <p class="card-text">@(string.Join("", course.Description.Take(100).ToList()) + "...")</p>
+                </div>
+                <div class="card-body">
+                    <span class="badge badge-warning">Price: @course.Price</span>
+                </div>
+                <div class="card-body">
+                    <span class="badge badge-warning">StartDate: @course.StartDate.ToString("dddd, dd MMMM yyyy")</span>
+                </div>
+                <div class="card-body">
+                    <span class="badge badge-warning">EndDate: @course.EndDate.ToString("dddd, dd MMMM yyyy")</span>
+                </div>
+                <div class="card-footer">
+                    <a asp-controller="Courses" asp-action="ById" asp-route-id="@course.Id" class="btn btn-outline-primary">Read More about the Course</a>
+                </div>
+                @if (this.User.IsInRole(GlobalConstants.StudentRoleName))
+                {
+                    if (course.Users.Any(u => u.UserId == user.Id))
+                    {
+                        <div class="alert-success">
+                            <p>You have already enrolled for this course!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-footer">
+                            <form method="post" asp-controller="Orders" asp-action="Create" asp-route-id="@course.Id">
+                                <input type="submit" value="Add To Cart" class="btn btn-outline-primary" />
+                            </form>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

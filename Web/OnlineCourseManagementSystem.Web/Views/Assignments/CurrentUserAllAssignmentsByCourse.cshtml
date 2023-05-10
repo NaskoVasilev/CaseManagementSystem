@@ -1,0 +1,94 @@
+﻿@using OnlineCourseManagementSystem.Web.ViewModels.Assignments
+@model AllAssignmentsViewModel
+@{
+    this.ViewData["Title"] = "My Assignments By Course";
+}
+<h1 class="text-center my-5">Assignments</h1>
+
+
+<div class="d-flex flex-column mb-5">
+    @foreach (var assignment in this.Model.UnfinishedAssignments)
+    {
+        <a class="my-1 d-flex rounded-3 bg-white" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;" asp-controller="Assignments" asp-action="GetInfo" asp-route-id="@assignment.AssignmentId">
+            <div class="flex-grow-1 m-3">
+                <h6>@assignment.Title</h6>
+                <h6 class="text-black-50"> @assignment.CourseName</h6>
+                @if (assignment.EndDate.Day > DateTime.UtcNow.Day)
+                {
+                    <div class="col-md-4">
+                        <h6> Due @assignment.EndDate.ToString("dd/MM/yyyy hh:mm t")</h6>
+                    </div>
+                }
+                else if (assignment.EndDate.Day == DateTime.UtcNow.Day + 1)
+                {
+                    <div class="col-md-4">
+                        <h6>Due Tomorrow</h6>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-4 text-danger">
+                        <h6>Due @assignment.EndDate.ToString("dd/MM/yyyy hh:mm t")</h6>
+                    </div>
+                }
+            </div>
+            <div class="row m-3">
+                <div class="col-md-5">
+                    <span class="badge">
+                        @if (!assignment.Seen)
+                        {
+                            <span class="badge badge-danger" style="font-size:12px;">New</span>
+                        }
+                    </span>
+                    <h6>
+                        @if (assignment.PossiblePoints != null)
+                        {
+                            <span>Points:</span><span class="badge" style="color:black;">@assignment.PossiblePoints</span>
+                        }
+                    </h6>
+                </div>
+                @if (assignment.EndDate < DateTime.UtcNow)
+                {
+                    <div class="col-md-5 text-danger">
+                        <h6>
+                            Past due
+                        </h6>
+                    </div>
+                }
+            </div>
+        </a>
+    }
+</div>
+
+@*<p>
+        <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#allFinished">Completed</button>
+    </p>*@
+<details class="my-5">
+    <summary style="color: #42a5f5;">
+        Completed
+    </summary>
+    <div class="d-flex flex-column my-1">
+        @foreach (var assignment in this.Model.FinishedAssignments)
+        {
+            <a class="d-flex rounded-3 my-1 bg-white" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;" asp-controller="Assignments" asp-action="GetInfo" asp-route-id="@assignment.AssignmentId">
+                <div class="flex-grow-1 m-3">
+                    <h6>
+                        @assignment.Title
+                    </h6>
+                    <h6 class="text-black-50">
+                        @assignment.CourseName
+                    </h6>
+                </div>
+                <div class="m-3">
+                    <h6>
+                        Points: @assignment.ReceivedPoints/@assignment.PossiblePoints
+                    </h6>
+                </div>
+            </a>
+        }
+    </div>
+</details>
+
+<div style="height:20vh;">
+</div>
+
